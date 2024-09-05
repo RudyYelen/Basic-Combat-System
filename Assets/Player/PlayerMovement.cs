@@ -2,24 +2,30 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using TMPro;
+using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
     Rigidbody2D rb;
     Vector2 movement;
-    // Movement Speed Variables
+
     public float moveSpeed = 200f;
     public float maxSpeed = 500f;
     public float acceleration = 100f;
     public float currentSpeed = 0;
 
-    // Dash Variables
     bool canDash = true;
     bool isDashing = false;
     public float dashPower = 50f;
     public float dashTime = 0.2f;
     public float dashCooldown = 0.5f;
+
+    bool canJump = true;
+    bool isJumping = false;
+    public float jumpDuration = 1f;
+    public AnimationCurve jumpCurve;
 
     void Start()
     {
@@ -28,47 +34,34 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if(isDashing)
-        {
-            return;
-        }
 
-        movement = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
-
-        if(Input.GetKeyDown(KeyCode.LeftShift) && canDash)
-        {
-            StartCoroutine(Dash());
-        }
-    }
-
-    void FixedUpdate()
-    {
-        if(isDashing)
-        {
-            return;
-        }
-
-        MoveCharacter(movement);
     }
     
-    void MoveCharacter(Vector2 direction)
+    public void MoveCharacter(Vector2 direction)
     {   
+        if(isDashing)
+        {
+            return;
+        }
         rb.velocity = direction * moveSpeed * Time.deltaTime;
-        /*if(Math.Abs(direction.x) > 0 || Math.Abs(direction.y) > 0)
+    }
+    public void Dash()
+    {
+        if(canDash)
         {
-            currentSpeed += acceleration * Time.deltaTime;
+            StartCoroutine(DashCo());
         }
-        else
-        {
-            currentSpeed = 0;
-        }
-        
-        currentSpeed = Math.Clamp(currentSpeed, 0, maxSpeed);
-        rb.velocity = direction * currentSpeed * Time.deltaTime;*/
-        //rb.MovePosition((Vector2)transform.position + (direction * speed * Time.deltaTime));
     }
 
-    IEnumerator Dash()
+    public void Jump()
+    {
+        if(canJump)
+        {
+            StartCoroutine(JumpCo());
+        }
+    }
+
+    IEnumerator DashCo()
     {
         canDash = false;
         isDashing = true;
@@ -78,5 +71,31 @@ public class PlayerMovement : MonoBehaviour
         isDashing = false;
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
+    }
+
+    IEnumerator JumpCo()
+    {
+        canJump = false;
+        isJumping = true;
+
+        float jumpStartTime = Time.time;
+
+        while(isJumping)
+        {
+            float jumpPrecentage = (Time.time - jumpStartTime) / jumpDuration;
+            jumpPrecentage = Mathf.Clamp01(jumpPrecentage);
+            transform.localScale = Vector3.one + Vector3.one * jumpCurve.Evaluate(jumpPrecentage);
+
+            if(jumpPrecentage == 1f)
+            {
+                break;
+            }
+
+            yield return null;
+        }
+
+        transform.localScale = Vector3.one;
+        isJumping = false;
+        canJump = true;
     }
 }
