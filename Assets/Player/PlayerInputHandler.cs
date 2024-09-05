@@ -13,12 +13,20 @@ public class PlayerInput : MonoBehaviour
 
     void Update()
     {
-        movement = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical");
+        movement = new Vector2(horizontal, vertical).normalized;
 
         if(Input.GetKeyDown(KeyCode.LeftShift))
             playerMovement.Dash();
 
-        if(Input.GetKeyDown(KeyCode.Z))
+        if(Input.GetKeyDown(KeyCode.LeftControl) && (horizontal != 0 || vertical != 0))
+            playerMovement.StartSlide();
+
+        if(Input.GetKeyUp(KeyCode.LeftControl))
+            playerMovement.StopSlide();
+
+        if(Input.GetKeyDown(KeyCode.Space))
             playerMovement.Jump();
     }
 
