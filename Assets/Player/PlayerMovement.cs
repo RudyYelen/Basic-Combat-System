@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
     public float moveSpeed = 200f;
     public float maxSpeed = 500f;
     public float acceleration = 100f;
-    public float currentSpeed = 0;
+    public float currentSpeed = 200f;
 
     bool isSliding = false;
     public float maxSlideTime = 0.75f;
@@ -30,7 +30,10 @@ public class PlayerMovement : MonoBehaviour
 
     bool canJump = true;
     bool isJumping = false;
+    bool bhop = false;
     public float jumpDuration = 1f;
+    public float bhopTimeWindow = 0.5f;
+    public float bhopForce = 100f;
     public AnimationCurve jumpCurve;
 
     void Awake()
@@ -51,13 +54,15 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        currentSpeed = Mathf.Clamp(currentSpeed, moveSpeed, maxSpeed);
+
         if(!isSliding)
         {
-            rb.velocity = direction * moveSpeed * Time.deltaTime;
+            rb.velocity = direction * currentSpeed * Time.deltaTime;
         }
         else
         {
-            rb.velocity = direction * moveSpeed * slideForce * Time.deltaTime;
+            rb.velocity = direction * currentSpeed * slideForce * Time.deltaTime;
             slideTimer -= Time.deltaTime;
 
             if(direction.x >= 0)
@@ -82,8 +87,6 @@ public class PlayerMovement : MonoBehaviour
         isSliding = true;
         canDash = false;
         slideTimer = maxSlideTime;
-
-        
     }
 
     public void StopSlide()
@@ -108,7 +111,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if(canJump)
         {
-            StartCoroutine(JumpCo());
+            StartCoroutine(JumpCo()); 
         }
     }
 
@@ -129,6 +132,11 @@ public class PlayerMovement : MonoBehaviour
         canJump = false;
         isJumping = true;
 
+        if(bhop)
+        {
+            currentSpeed += bhopForce;;
+        }
+
         float jumpStartTime = Time.time;
 
         while(isJumping)
@@ -146,7 +154,20 @@ public class PlayerMovement : MonoBehaviour
         }
 
         playerSprite.transform.localScale = Vector3.one;
+
         isJumping = false;
         canJump = true;
+        StartCoroutine(bhopCo());
+    }
+
+    IEnumerator bhopCo()
+    {
+        bhop = true;
+        yield return new WaitForSeconds(bhopTimeWindow);
+        if(!isJumping)
+        {
+            bhop = false;
+            currentSpeed = moveSpeed;
+        }
     }
 }
