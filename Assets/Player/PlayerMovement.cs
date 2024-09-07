@@ -10,9 +10,9 @@ public class PlayerMovement : MonoBehaviour
 {
     Rigidbody2D rb;
     SpriteRenderer playerSprite;
-    Vector2 movement;
+    Transform Aim;
 
-    public float moveSpeed = 200f;
+    public float baseMoveSpeed = 200f;
     public float maxSpeed = 500f;
     public float acceleration = 100f;
     public float currentSpeed = 200f;
@@ -40,32 +40,33 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         playerSprite = GetComponent<SpriteRenderer>();
+        Aim = transform.GetChild(0).transform;
     }
     
-    public void MoveCharacter(Vector2 direction)
+    public void MoveCharacter(Vector2 movement)
     {   
         if(isDashing)
         {
             return;
         }
 
-        currentSpeed = Mathf.Clamp(currentSpeed, moveSpeed, maxSpeed);
+        currentSpeed = Mathf.Clamp(currentSpeed, baseMoveSpeed, maxSpeed);
 
         if(!isSliding)
         {
-            rb.velocity = direction * currentSpeed * Time.deltaTime;
+            rb.velocity = movement * currentSpeed * Time.deltaTime;
         }
         else
         {
-            rb.velocity = direction * currentSpeed * slideForce * Time.deltaTime;
+            rb.velocity = movement * currentSpeed * slideForce * Time.deltaTime;
             slideTimer -= Time.deltaTime;
 
-            if(direction.x >= 0)
+            if(movement.x >= 0)
             {
                 playerSprite.transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
             }
 
-            if(direction.x < 0)
+            if(movement.x < 0)
             {
                 playerSprite.transform.localRotation = Quaternion.Euler(0f, 0f, -45f);
             }
@@ -74,6 +75,12 @@ public class PlayerMovement : MonoBehaviour
             {
                 StopSlide();
             }
+        }
+        if((movement.x != 0 || movement.y != 0) && (Input.GetAxisRaw("Horizontal") == 0 || Input.GetAxisRaw("Vertical") == 0))
+        {
+            Vector2 lastMovement = movement;
+            Vector3 aimMovement = Vector3.left * lastMovement.x + Vector3.down * lastMovement.y;
+            Aim.rotation = Quaternion.LookRotation(Vector3.forward, aimMovement);
         }
     }
 
@@ -94,11 +101,11 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void Dash(Vector2 direction)
+    public void Dash(Vector2 movement)
     {
         if(canDash)
         {
-            StartCoroutine(DashCo(direction));
+            StartCoroutine(DashCo(movement));
         }
     }
 
@@ -110,13 +117,13 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    IEnumerator DashCo(Vector2 direction)
+    IEnumerator DashCo(Vector2 movement)
     {
         canDash = false;
         canJump = false;
         isDashing = true;
-        //Vector2 dashDirection = (Input.mousePosition - Camera.main.WorldToScreenPoint(transform.position)).normalized;
-        rb.velocity = direction * dashForce;
+        //Vector2 dashmovement = (Input.mousePosition - Camera.main.WorldToScreenPoint(transform.position)).normalized;
+        rb.velocity = movement * dashForce;
         yield return new WaitForSeconds(dashTime);
         isDashing = false;
         yield return new WaitForSeconds(dashCooldown);
@@ -164,7 +171,7 @@ public class PlayerMovement : MonoBehaviour
         if(!isJumping)
         {
             bhop = false;
-            currentSpeed = moveSpeed;
+            currentSpeed = baseMoveSpeed;
         }
     }
 }

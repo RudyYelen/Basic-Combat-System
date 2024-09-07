@@ -5,10 +5,14 @@ using UnityEngine;
 public class PlayerInput : MonoBehaviour
 {
     PlayerMovement playerMovement;
+    PlayerAttack playerAttack;
+    
     Vector2 movement;
     void Awake()
     {
         playerMovement = GetComponent<PlayerMovement>();
+        playerAttack = GetComponent<PlayerAttack>();
+        
     }
 
     void Update()
@@ -28,10 +32,13 @@ public class PlayerInput : MonoBehaviour
 
         if(Input.GetKeyDown(KeyCode.Z))
             playerMovement.Jump();
+
+        if(Input.GetKeyDown(KeyCode.X))
+            playerAttack.Attack(movement);
     }
 
     void FixedUpdate()
     {
-        playerMovement.MoveCharacter(movement);
+        playerMovement.MoveCharacter(movement);  
     }
 }
