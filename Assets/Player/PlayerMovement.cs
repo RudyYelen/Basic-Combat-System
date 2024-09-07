@@ -41,11 +41,6 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         playerSprite = GetComponent<SpriteRenderer>();
     }
-
-    void Update()
-    {
-
-    }
     
     public void MoveCharacter(Vector2 direction)
     {   
@@ -99,11 +94,11 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void Dash()
+    public void Dash(Vector2 direction)
     {
         if(canDash)
         {
-            StartCoroutine(DashCo());
+            StartCoroutine(DashCo(direction));
         }
     }
 
@@ -115,16 +110,18 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    IEnumerator DashCo()
+    IEnumerator DashCo(Vector2 direction)
     {
         canDash = false;
+        canJump = false;
         isDashing = true;
-        Vector2 dashDirection = (Input.mousePosition - Camera.main.WorldToScreenPoint(transform.position)).normalized;
-        rb.velocity = dashDirection * dashForce;
+        //Vector2 dashDirection = (Input.mousePosition - Camera.main.WorldToScreenPoint(transform.position)).normalized;
+        rb.velocity = direction * dashForce;
         yield return new WaitForSeconds(dashTime);
         isDashing = false;
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
+        canJump = true;
     }
 
     IEnumerator JumpCo()

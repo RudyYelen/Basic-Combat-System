@@ -18,15 +18,15 @@ public class PlayerInput : MonoBehaviour
         movement = new Vector2(horizontal, vertical).normalized;
 
         if(Input.GetKeyDown(KeyCode.LeftShift))
-            playerMovement.Dash();
+            playerMovement.Dash(movement);
 
-        if(Input.GetKeyDown(KeyCode.LeftControl) && (horizontal != 0 || vertical != 0))
+        if(Input.GetKeyDown(KeyCode.C) && (horizontal != 0 || vertical != 0))
             playerMovement.StartSlide();
 
-        if(Input.GetKeyUp(KeyCode.LeftControl))
+        if(Input.GetKeyUp(KeyCode.C))
             playerMovement.StopSlide();
 
-        if(Input.GetKeyDown(KeyCode.Space))
+        if(Input.GetKeyDown(KeyCode.Z))
             playerMovement.Jump();
     }
 
