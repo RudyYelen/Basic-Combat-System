@@ -10,10 +10,11 @@ public class PlayerMovement : MonoBehaviour
 {
     Rigidbody2D rb;
     SpriteRenderer playerSprite;
+    Collider2D playerCollider;
     Transform Aim;
 
     public float baseMoveSpeed = 200f;
-    public float maxSpeed = 500f;
+    public float maxSpeed = 700f;
     public float acceleration = 100f;
     public float currentSpeed = 200f;
 
@@ -40,6 +41,7 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         playerSprite = GetComponent<SpriteRenderer>();
+        playerCollider = GetComponentInChildren<Collider2D>();
         Aim = transform.GetChild(0).transform;
     }
     
@@ -122,7 +124,6 @@ public class PlayerMovement : MonoBehaviour
         canDash = false;
         canJump = false;
         isDashing = true;
-        //Vector2 dashmovement = (Input.mousePosition - Camera.main.WorldToScreenPoint(transform.position)).normalized;
         rb.velocity = movement * dashForce;
         yield return new WaitForSeconds(dashTime);
         isDashing = false;
@@ -134,7 +135,10 @@ public class PlayerMovement : MonoBehaviour
     IEnumerator JumpCo()
     {
         canJump = false;
+        canDash = false;
         isJumping = true;
+
+        playerCollider.enabled = false;
 
         if(bhop)
         {
@@ -142,7 +146,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         float jumpStartTime = Time.time;
-
+        
         while(isJumping)
         {
             float jumpPrecentage = (Time.time - jumpStartTime) / jumpDuration;
@@ -158,9 +162,11 @@ public class PlayerMovement : MonoBehaviour
         }
 
         playerSprite.transform.localScale = Vector3.one;
+        playerCollider.enabled = true;
 
         isJumping = false;
         canJump = true;
+        canDash = true;
         StartCoroutine(bhopCo());
     }
 

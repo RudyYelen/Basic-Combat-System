@@ -12,7 +12,10 @@ public class PlayerAttack : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Enemy hit");
+        if(other.gameObject.CompareTag("Enemy"))
+        {
+            Debug.Log("Enemy hit");
+        }
     }
 
     public void Attack(Vector2 direction)
