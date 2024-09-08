@@ -1,11 +1,11 @@
 Basic Combat / Movement System in Unity
 
 Controls:
-Movement - WASD / Arrows
-Dash - Shift
-Jump - Z
-Attack - X
-Slide - C
+- Movement - WASD / Arrows
+- Dash - Shift
+- Jump - Z
+- Attack - X
+- Slide - C
 
 Pressing jump in short window after landing gives a speedboost up to max speed.
 Values can be changed in editor on player under PlayerMovement Script.
